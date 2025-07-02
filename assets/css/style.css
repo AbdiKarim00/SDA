@@ -1,0 +1,121 @@
+/* Custom styles for SDATIMS */
+
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Card styles */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 1.5rem;
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    transform: translateY(-1px);
+}
+
+/* Form styles */
+.form-control {
+    border-radius: 5px;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Navigation styles */
+.navbar {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+    color: #495057;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #0d6efd;
+}
+
+/* Dashboard styles */
+.dashboard-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h3 {
+    color: #212529;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* Map container styles */
+.map-container {
+    height: 400px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styles */
+.table {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 5px;
+    border: none;
+    padding: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .dashboard-card {
+        padding: 1rem;
+    }
+    
+    .map-container {
+        height: 300px;
+    }
+} 

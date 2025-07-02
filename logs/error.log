@@ -1,0 +1,12 @@
+[21-May-2025 10:10:34 UTC] PHP Fatal error:  Uncaught Error: Class "Auth" not found in /Users/abu/transportIMS/logistics/dashboard.php:9
+Stack trace:
+#0 {main}
+  thrown in /Users/abu/transportIMS/logistics/dashboard.php on line 9
+[21-May-2025 10:22:18 UTC] PHP Fatal error:  Uncaught Error: Class "Auth" not found in /Users/abu/transportIMS/admin/drivers.php:9
+Stack trace:
+#0 {main}
+  thrown in /Users/abu/transportIMS/admin/drivers.php on line 9
+[21-May-2025 10:22:25 UTC] PHP Fatal error:  Uncaught Error: Class "Auth" not found in /Users/abu/transportIMS/admin/vehicles.php:9
+Stack trace:
+#0 {main}
+  thrown in /Users/abu/transportIMS/admin/vehicles.php on line 9

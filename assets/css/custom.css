@@ -1,0 +1,15 @@
+@keyframes fadeOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Add this to your existing styles */
+.animate-fadeOutRight {
+    animation: fadeOutRight 0.3s ease-in-out;
+} 

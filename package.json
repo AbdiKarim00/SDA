@@ -1,0 +1,14 @@
+{
+  "name": "transportims",
+  "version": "1.0.0",
+  "description": "Transport IMS System",
+  "scripts": {
+    "build": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --minify",
+    "watch": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35"
+  }
+} 
