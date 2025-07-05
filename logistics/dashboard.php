@@ -1,4 +1,6 @@
 <?php
+session_start();
+require_once '../includes/auth.php';
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';

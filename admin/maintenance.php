@@ -5,59 +5,12 @@ require_once '../components/common/ReportHeader.php';
 require_once '../components/common/KpiCard.php';
 require_once '../components/common/ChartCard.php';
 
-// Mock data for frontend development
-$maintenanceMetrics = [
-    'pending_services' => 8,
-    'in_progress' => 3,
-    'completed_this_month' => 15,
-    'upcoming_scheduled' => 5
-];
-
-$maintenanceAlerts = [
-    [
-        'vehicle' => 'KAA 123A',
-        'make_model' => 'Toyota Hilux',
-        'service_type' => 'Oil Change',
-        'due_date' => date('Y-m-d', strtotime('+5 days')),
-        'days_remaining' => 5,
-        'status' => 'warning'
-    ],
-    [
-        'vehicle' => 'KAA 456B',
-        'make_model' => 'Isuzu NPR',
-        'service_type' => 'Brake Inspection',
-        'due_date' => date('Y-m-d', strtotime('+2 days')),
-        'days_remaining' => 2,
-        'status' => 'warning'
-    ],
-    [
-        'vehicle' => 'KAA 789C',
-        'make_model' => 'Mitsubishi Fuso',
-        'service_type' => 'Tire Rotation',
-        'due_date' => date('Y-m-d', strtotime('-1 day')),
-        'days_remaining' => -1,
-        'status' => 'danger'
-    ]
-];
-
-$maintenanceHistory = [
-    [
-        'vehicle' => 'KAA 123A',
-        'service_type' => 'Regular Service',
-        'service_date' => date('Y-m-d', strtotime('-15 days')),
-        'cost' => 25000,
-        'status' => 'Completed',
-        'service_provider' => 'Toyota Service Center'
-    ],
-    [
-        'vehicle' => 'KAA 456B',
-        'service_type' => 'Brake Repair',
-        'service_date' => date('Y-m-d', strtotime('-5 days')),
-        'cost' => 45000,
-        'status' => 'Completed',
-        'service_provider' => 'Isuzu Service Center'
-    ]
-];
+// TODO: Replace mock data with database queries and dynamic data fetching.
+// Example:
+// $pdo = new PDO('pgsql:host=localhost;dbname=your_dbname', 'your_user', 'your_password');
+// $stmt = $pdo->query("SELECT COUNT(*) FROM maintenance WHERE status = 'pending'");
+// $pending_services = $stmt->fetchColumn();
+// ...
 
 $upcomingServices = [
     [

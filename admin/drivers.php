@@ -1,111 +1,12 @@
 <?php
+require_once '../includes/auth.php';
+session_start();
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
 require_once '../components/common/KpiCard.php';
 require_once '../components/common/ChartCard.php';
 
-// Mock data for frontend development
-$driverMetrics = [
-    'total_active' => 28,
-    'on_leave' => 4,
-    'suspended' => 3,
-    'available' => 21
-];
-
-$licenseAlerts = [
-    [
-        'driver_name' => 'John Doe',
-        'license_number' => 'DL123456',
-        'expiry_date' => date('Y-m-d', strtotime('+15 days')),
-        'days_remaining' => 15,
-        'status' => 'warning'
-    ],
-    [
-        'driver_name' => 'Jane Smith',
-        'license_number' => 'DL789012',
-        'expiry_date' => date('Y-m-d', strtotime('+45 days')),
-        'days_remaining' => 45,
-        'status' => 'warning'
-    ],
-    [
-        'driver_name' => 'Mike Johnson',
-        'license_number' => 'DL345678',
-        'expiry_date' => date('Y-m-d', strtotime('-2 days')),
-        'days_remaining' => -2,
-        'status' => 'danger'
-    ]
-];
-
-$cardAlerts = [
-    [
-        'driver_name' => 'Sarah Wilson',
-        'card_type' => 'Fuel Card',
-        'card_number' => 'FC123456',
-        'expiry_date' => date('Y-m-d', strtotime('+10 days')),
-        'status' => 'warning'
-    ],
-    [
-        'driver_name' => 'David Brown',
-        'card_type' => 'Access Card',
-        'card_number' => 'AC789012',
-        'expiry_date' => date('Y-m-d', strtotime('+20 days')),
-        'status' => 'warning'
-    ]
-];
-
-$incidentReports = [
-    [
-        'driver_name' => 'John Doe',
-        'incident_date' => date('Y-m-d', strtotime('-5 days')),
-        'incident_type' => 'Minor Accident',
-        'vehicle' => 'KAA 123A',
-        'severity' => 'Low',
-        'status' => 'Resolved'
-    ],
-    [
-        'driver_name' => 'Jane Smith',
-        'incident_date' => date('Y-m-d', strtotime('-2 days')),
-        'incident_type' => 'Traffic Violation',
-        'vehicle' => 'KAA 456B',
-        'severity' => 'Medium',
-        'status' => 'Under Review'
-    ]
-];
-
-$vehicleAssignments = [
-    [
-        'driver_name' => 'John Doe',
-        'vehicle' => 'KAA 123A',
-        'make_model' => 'Toyota Hilux',
-        'assignment_date' => date('Y-m-d', strtotime('-30 days')),
-        'status' => 'Active'
-    ],
-    [
-        'driver_name' => 'Jane Smith',
-        'vehicle' => 'KAA 456B',
-        'make_model' => 'Isuzu NPR',
-        'assignment_date' => date('Y-m-d', strtotime('-15 days')),
-        'status' => 'Active'
-    ]
-];
-
-$maintenanceReports = [
-    [
-        'driver_name' => 'John Doe',
-        'vehicle' => 'KAA 123A',
-        'issue_type' => 'Brake System',
-        'report_date' => date('Y-m-d', strtotime('-3 days')),
-        'status' => 'Pending'
-    ],
-    [
-        'driver_name' => 'Mike Johnson',
-        'vehicle' => 'KAA 789C',
-        'issue_type' => 'Engine Check',
-        'report_date' => date('Y-m-d', strtotime('-1 day')),
-        'status' => 'In Progress'
-    ]
-];
 ?>
 <!DOCTYPE html>
 <html lang="en">

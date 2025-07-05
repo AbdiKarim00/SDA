@@ -1,76 +1,18 @@
 <?php
+require_once '../includes/auth.php';
+session_start();
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
 require_once '../components/common/KpiCard.php';
 require_once '../components/common/ChartCard.php';
 
-// Mock data for frontend development
-$fleetMetrics = [
-    'total_vehicles' => 25,
-    'active_vehicles' => 18,
-    'maintenance_vehicles' => 5,
-    'inactive_vehicles' => 2,
-    'average_age' => 3.5,
-    'utilization_rate' => 85,
-    'fuel_efficiency' => 8.5,
-    'maintenance_cost' => 150000
-];
-
-$vehicleTypes = [
-    'Sedan' => 8,
-    'SUV' => 6,
-    'Truck' => 5,
-    'Van' => 4,
-    'Bus' => 2
-];
-
-$utilizationData = [
-    [
-        'month' => date('Y-m-01', strtotime('-5 months')),
-        'utilization' => 82,
-        'maintenance_hours' => 120
-    ],
-    [
-        'month' => date('Y-m-01', strtotime('-4 months')),
-        'utilization' => 85,
-        'maintenance_hours' => 95
-    ],
-    [
-        'month' => date('Y-m-01', strtotime('-3 months')),
-        'utilization' => 88,
-        'maintenance_hours' => 110
-    ],
-    [
-        'month' => date('Y-m-01', strtotime('-2 months')),
-        'utilization' => 84,
-        'maintenance_hours' => 130
-    ],
-    [
-        'month' => date('Y-m-01', strtotime('-1 month')),
-        'utilization' => 87,
-        'maintenance_hours' => 105
-    ],
-    [
-        'month' => date('Y-m-01'),
-        'utilization' => 85,
-        'maintenance_hours' => 115
-    ]
-];
-
-$maintenanceMetrics = [
-    'scheduled' => 12,
-    'unscheduled' => 3,
-    'preventive' => 8,
-    'corrective' => 7
-];
-
-$costMetrics = [
-    'fuel' => 450000,
-    'maintenance' => 150000,
-    'insurance' => 75000,
-    'depreciation' => 300000
-];
+// TODO: Replace mock data with database queries and dynamic data fetching.
+// Example:
+// $pdo = new PDO('pgsql:host=localhost;dbname=your_dbname', 'your_user', 'your_password');
+// $stmt = $pdo->query("SELECT COUNT(*) FROM vehicles WHERE active = TRUE");
+// $total_vehicles = $stmt->fetchColumn();
+// ...
 ?>
 <!DOCTYPE html>
 <html lang="en">
