@@ -2,14 +2,19 @@
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-require_once 'mock_data.php';
+// require_once 'mock_data.php'; // Mock data system removed
 
 // Get mock data for reports
-$vehicles = get_mock_data('vehicles');
-$maintenance = get_mock_data('maintenance');
-$incidents = get_mock_data('incidents');
-$trips = get_mock_data('trips');
-$fuel_cards = get_mock_data('fuel_cards');
+// $vehicles = get_mock_data('vehicles'); // Mock data system removed
+$vehicles = []; // Placeholder
+// $maintenance = get_mock_data('maintenance'); // Mock data system removed
+$maintenance = []; // Placeholder
+// $incidents = get_mock_data('incidents'); // Mock data system removed
+$incidents = []; // Placeholder
+// $trips = get_mock_data('trips'); // Mock data system removed
+$trips = []; // Placeholder
+// $fuel_cards = get_mock_data('fuel_cards'); // Mock data system removed
+$fuel_cards = []; // Placeholder
 ?>
 
 <!DOCTYPE html>
