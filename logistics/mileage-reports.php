@@ -2,11 +2,13 @@
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-require_once 'mock_data.php';
+// require_once 'mock_data.php'; // Mock data system removed
 
 // Get mock data
-$vehicles = get_mock_data('vehicles');
-$trips = get_mock_data('trips');
+// $vehicles = get_mock_data('vehicles'); // Mock data system removed
+$vehicles = []; // Placeholder
+// $trips = get_mock_data('trips'); // Mock data system removed
+$trips = []; // Placeholder
 
 // Calculate total mileage
 $total_mileage = array_sum(array_column($vehicles, 'current_mileage'));

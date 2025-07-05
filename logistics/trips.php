@@ -4,7 +4,7 @@ require_once '../includes/db.php';
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-require_once 'mock_data.php';
+// require_once 'mock_data.php'; // Mock data system removed
 
 $auth = new Auth();
 if (!$auth->isLoggedIn() || !in_array($auth->getCurrentUser()['role'], ['admin', 'logistics'])) {
@@ -95,35 +95,43 @@ $drivers = $db->query("
 ")->fetchAll();
 
 // Get mock data
-$mock_trips = get_mock_data('trips');
-$mock_vehicles = get_mock_data('vehicles');
-$mock_drivers = get_mock_data('drivers');
+// $mock_trips = get_mock_data('trips'); // Mock data system removed
+$mock_trips = []; // Placeholder - Note: This page uses $mock_trips extensively in HTML. It will show no data.
+// $mock_vehicles = get_mock_data('vehicles'); // Mock data system removed
+$mock_vehicles = $vehicles; // Use $vehicles from DB for modal dropdown for now
+// $mock_drivers = get_mock_data('drivers'); // Mock data system removed
+$mock_drivers = $drivers; // Use $drivers from DB for modal dropdown for now
+
 
 // Handle trip creation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_trip') {
-    $newTrip = [
-        'id' => count($mock_trips) + 1,
-        'vehicle_id' => $_POST['vehicle_id'],
-        'vehicle_registration' => $mock_vehicles[array_search($_POST['vehicle_id'], array_column($mock_vehicles, 'id'))]['registration_number'],
-        'driver_id' => $_POST['driver_id'],
-        'driver_name' => $mock_drivers[array_search($_POST['driver_id'], array_column($mock_drivers, 'id'))]['name'],
-        'start_date' => $_POST['start_time'],
-        'end_date' => null,
-        'origin' => $_POST['start_location'],
-        'destination' => $_POST['end_location'],
-        'purpose' => $_POST['notes'] ?? 'Regular Trip',
-        'status' => 'Scheduled',
-        'mileage_start' => null,
-        'mileage_end' => null,
-        'fuel_used' => null,
-        'notes' => $_POST['notes'] ?? ''
-    ];
+    // This POST logic will be replaced by an API call via Alpine.js in a future refactor.
+    // For now, removing direct mock data manipulation.
+    // $newTrip = [
+    //     'id' => count($mock_trips) + 1, // This would be problematic anyway
+    //     'vehicle_id' => $_POST['vehicle_id'],
+    //     'vehicle_registration' => $mock_vehicles[array_search($_POST['vehicle_id'], array_column($mock_vehicles, 'id'))]['registration_number'],
+    //     'driver_id' => $_POST['driver_id'],
+    //     'driver_name' => $mock_drivers[array_search($_POST['driver_id'], array_column($mock_drivers, 'id'))]['name'],
+    //     'start_date' => $_POST['start_time'],
+    //     'end_date' => null,
+    //     'origin' => $_POST['start_location'],
+    //     'destination' => $_POST['end_location'],
+    //     'purpose' => $_POST['notes'] ?? 'Regular Trip',
+    //     'status' => 'Scheduled',
+    //     'mileage_start' => null,
+    //     'mileage_end' => null,
+    //     'fuel_used' => null,
+    //     'notes' => $_POST['notes'] ?? ''
+    // ];
     
     // Add to mock data
-    $mock_trips[] = $newTrip;
+    // $mock_trips[] = $newTrip; // Mock data manipulation removed
     
     // Redirect to prevent form resubmission
-    header('Location: trips.php?success=1');
+    // For now, just indicate an action was attempted.
+    $_SESSION['message'] = "Trip creation attempted (functionality to be updated via API).";
+    header('Location: trips.php');
     exit;
 }
 ?>

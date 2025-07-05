@@ -2,144 +2,7 @@
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-
-// Mock data for vehicles
-$vehicles = [
-    [
-        'id' => 1,
-        'registration_number' => 'KAA 123A',
-        'make' => 'Toyota',
-        'model' => 'Hilux',
-        'chassis_no' => 'JTF1J10P1N1234567',
-        'engine_no' => '2GD-1234567',
-        'vehicle_type' => 'Truck',
-        'capacity' => '1.5 tons',
-        'fuel_type' => 'Diesel',
-        'purchase_date' => '2022-01-15',
-        'funded_by' => 'Government',
-        'initial_mileage' => 0,
-        'current_mileage' => 25000,
-        'status' => 'Available',
-        'current_driver' => 'John Doe',
-        'next_service_due' => date('Y-m-d', strtotime('+5 days')),
-        'insurance_expiry' => date('Y-m-d', strtotime('+3 months')),
-        'road_permit_expiry' => date('Y-m-d', strtotime('+6 months'))
-    ],
-    [
-        'id' => 2,
-        'registration_number' => 'KAA 456B',
-        'make' => 'Isuzu',
-        'model' => 'NPR',
-        'chassis_no' => 'JTF1J10P1N7654321',
-        'engine_no' => '4HK-7654321',
-        'vehicle_type' => 'Truck',
-        'capacity' => '3 tons',
-        'fuel_type' => 'Diesel',
-        'purchase_date' => '2021-06-20',
-        'funded_by' => 'Private',
-        'initial_mileage' => 0,
-        'current_mileage' => 45000,
-        'status' => 'In Maintenance',
-        'current_driver' => 'Jane Smith',
-        'next_service_due' => date('Y-m-d', strtotime('+10 days')),
-        'insurance_expiry' => date('Y-m-d', strtotime('+2 months')),
-        'road_permit_expiry' => date('Y-m-d', strtotime('+5 months'))
-    ],
-    [
-        'id' => 3,
-        'registration_number' => 'KAA 789C',
-        'make' => 'Mitsubishi',
-        'model' => 'Fuso',
-        'chassis_no' => 'JTF1J10P1N9876543',
-        'engine_no' => '6M70-9876543',
-        'vehicle_type' => 'Truck',
-        'capacity' => '5 tons',
-        'fuel_type' => 'Diesel',
-        'purchase_date' => '2023-03-10',
-        'funded_by' => 'Government',
-        'initial_mileage' => 0,
-        'current_mileage' => 15000,
-        'status' => 'On Trip',
-        'current_driver' => 'Mike Johnson',
-        'next_service_due' => date('Y-m-d', strtotime('+15 days')),
-        'insurance_expiry' => date('Y-m-d', strtotime('+9 months')),
-        'road_permit_expiry' => date('Y-m-d', strtotime('+12 months'))
-    ]
-];
-
-// Handle vehicle decommissioning
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['decommission'])) {
-    $vehicle_id = $_POST['vehicle_id'];
-    // In a real application, this would update the database
-    // For mock data, we'll just simulate the action
-    $success = true;
-    if ($success) {
-        $_SESSION['success'] = 'Vehicle has been decommissioned successfully.';
-    } else {
-        $_SESSION['error'] = 'Failed to decommission vehicle.';
-    }
-    header('Location: vehicles.php');
-    exit;
-}
-
-// Filter vehicles
-$status_filter = $_GET['status'] ?? '';
-$type_filter = $_GET['type'] ?? '';
-$funded_by_filter = $_GET['funded_by'] ?? '';
-$search = $_GET['search'] ?? '';
-
-$filtered_vehicles = array_filter($vehicles, function($vehicle) use ($status_filter, $type_filter, $funded_by_filter, $search) {
-    $matches_status = empty($status_filter) || $vehicle['status'] === $status_filter;
-    $matches_type = empty($type_filter) || $vehicle['vehicle_type'] === $type_filter;
-    $matches_funded_by = empty($funded_by_filter) || $vehicle['funded_by'] === $funded_by_filter;
-    $matches_search = empty($search) || 
-        stripos($vehicle['registration_number'], $search) !== false ||
-        stripos($vehicle['make'], $search) !== false ||
-        stripos($vehicle['model'], $search) !== false;
-    
-    return $matches_status && $matches_type && $matches_funded_by && $matches_search;
-});
-
-// Handle export
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="vehicles.csv"');
-    
-    $output = fopen('php://output', 'w');
-    
-    // Add headers
-    fputcsv($output, [
-        'Registration Number',
-        'Make',
-        'Model',
-        'Type',
-        'Status',
-        'Current Driver',
-        'Next Service Due',
-        'Insurance Expiry',
-        'Road Permit Expiry',
-        'Funded By'
-    ]);
-    
-    // Add data
-    foreach ($filtered_vehicles as $vehicle) {
-        fputcsv($output, [
-            $vehicle['registration_number'],
-            $vehicle['make'],
-            $vehicle['model'],
-            $vehicle['vehicle_type'],
-            $vehicle['status'],
-            $vehicle['current_driver'],
-            $vehicle['next_service_due'],
-            $vehicle['insurance_expiry'],
-            $vehicle['road_permit_expiry'],
-            $vehicle['funded_by']
-        ]);
-    }
-    
-    fclose($output);
-    exit;
-}
+// Mock data and PHP logic removed
 ?>
 
 <!DOCTYPE html>
@@ -152,13 +15,22 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="../assets/css/admin.css" rel="stylesheet">
+    <style>
+        .status-badge.available { background-color: #dcfce7; color: #166534; }
+        .status-badge.maintenance, .status-badge.in-maintenance { background-color: #fef9c3; color: #713f12; }
+        .status-badge.on-trip { background-color: #e0e7ff; color: #3730a3; }
+        .status-badge.decommissioned { background-color: #fee2e2; color: #991b1b; }
+        .status-badge.other { background-color: #f3f4f6; color: #374151; }
+
+        /* Alerts */
+        .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+        .alert-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    </style>
 </head>
 <body class="bg-gray-50">
-    <div class="app-container" x-data="{ 
-        sidebarOpen: true,
-        isLoading: true,
-        showFilters: false
-    }" x-init="setTimeout(() => isLoading = false, 500)">
+    <div class="app-container" x-data="logisticsVehicles()"
+         x-init="init()">
         <?php DashboardSidebar::render('vehicles'); ?>
 
         <div class="main-content">
@@ -168,6 +40,13 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                 'Vehicle Management',
                 'Manage and track all vehicles in the fleet'
             ); ?>
+
+            <!-- Global Error/Success Messages -->
+            <template x-if="globalMessage.text">
+                <div class="p-4">
+                    <div class="alert" :class="globalMessage.type === 'success' ? 'alert-success' : 'alert-error'" x-text="globalMessage.text" x-init="setTimeout(() => globalMessage.text = '', 3000)"></div>
+                </div>
+            </template>
 
             <!-- Loading State -->
             <div x-show="isLoading" class="flex justify-center items-center h-64">
@@ -184,59 +63,62 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                                 <button @click="showFilters = !showFilters" 
                                         class="btn btn-secondary">
                                     <i class="bi bi-funnel"></i>
-                                    Filters
+                                    <span x-text="showFilters ? 'Hide Filters' : 'Show Filters'"></span>
                                 </button>
                                 <div class="relative">
                                     <input type="text" 
-                                           name="search" 
-                                           placeholder="Search vehicles..." 
-                                           class="form-input pl-10"
-                                           value="<?php echo htmlspecialchars($search); ?>">
+                                           x-model.debounce.500ms="filters.search"
+                                           @input="applyFiltersDebounced"
+                                           placeholder="Search by Reg#, Make, Model..."
+                                           class="form-input pl-10">
                                     <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 </div>
                             </div>
                             <div class="flex items-center gap-4">
-                                <a href="?export=csv" class="btn btn-secondary">
+                                <button @click="exportCSV()" class="btn btn-secondary">
                                     <i class="bi bi-download"></i>
                                     Export CSV
+                                </button>
+                                <a href="add-vehicle.php" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg"></i>
+                                    Add Vehicle
                                 </a>
-                            <a href="add-vehicle.php" class="btn btn-primary">
-                                <i class="bi bi-plus-lg"></i>
-                                Add Vehicle
-                            </a>
                             </div>
                         </div>
 
                         <!-- Filter Form -->
-                        <form x-show="showFilters" 
+                        <form @submit.prevent="applyFilters"
+                              x-show="showFilters"
                               x-transition
                               class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
+                                <select x-model="filters.status" class="form-select">
                                     <option value="">All Statuses</option>
-                                    <option value="Available" <?php echo $status_filter === 'Available' ? 'selected' : ''; ?>>Available</option>
-                                    <option value="In Maintenance" <?php echo $status_filter === 'In Maintenance' ? 'selected' : ''; ?>>In Maintenance</option>
-                                    <option value="On Trip" <?php echo $status_filter === 'On Trip' ? 'selected' : ''; ?>>On Trip</option>
-                                    <option value="Decommissioned" <?php echo $status_filter === 'Decommissioned' ? 'selected' : ''; ?>>Decommissioned</option>
+                                    <option value="Available">Available</option>
+                                    <option value="In Maintenance">In Maintenance</option>
+                                    <option value="On Trip">On Trip</option>
+                                    <option value="Decommissioned">Decommissioned</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label">Vehicle Type</label>
-                                <select name="type" class="form-select">
+                                <select x-model="filters.type" class="form-select">
                                     <option value="">All Types</option>
-                                    <option value="Car" <?php echo $type_filter === 'Car' ? 'selected' : ''; ?>>Car</option>
-                                    <option value="Van" <?php echo $type_filter === 'Van' ? 'selected' : ''; ?>>Van</option>
-                                    <option value="Truck" <?php echo $type_filter === 'Truck' ? 'selected' : ''; ?>>Truck</option>
-                                    <option value="Bus" <?php echo $type_filter === 'Bus' ? 'selected' : ''; ?>>Bus</option>
+                                    <option value="Car">Car</option>
+                                    <option value="Van">Van</option>
+                                    <option value="Truck">Truck</option>
+                                    <option value="Bus">Bus</option>
+                                    <option value="SUV">SUV</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label">Funded By</label>
-                                <select name="funded_by" class="form-select">
+                                <select x-model="filters.funded_by" class="form-select">
                                     <option value="">All Sources</option>
-                                    <option value="Government" <?php echo $funded_by_filter === 'Government' ? 'selected' : ''; ?>>Government</option>
-                                    <option value="Private" <?php echo $funded_by_filter === 'Private' ? 'selected' : ''; ?>>Private</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Private">Private</option>
+                                    <option value="Donor">Donor</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
@@ -254,155 +136,269 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Registration
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Make & Model
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Type
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Current Driver
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Next Service
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Insurance Expiry
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Funded By
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Make & Model</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Driver</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Service</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance Expiry</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funded By</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <?php if (empty($filtered_vehicles)): ?>
+                                <template x-if="vehicles.length === 0">
                                     <tr>
                                         <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                                             No vehicles found matching your criteria.
                                         </td>
                                     </tr>
-                                <?php else: ?>
-                                    <?php foreach ($filtered_vehicles as $vehicle): ?>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    <?php echo htmlspecialchars($vehicle['registration_number']); ?>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">
-                                                    <?php echo htmlspecialchars($vehicle['make'] . ' ' . $vehicle['model']); ?>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">
-                                                    <?php echo htmlspecialchars($vehicle['vehicle_type']); ?>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                    <?php
-                                                    switch ($vehicle['status']) {
-                                                        case 'Available':
-                                                            echo 'bg-green-100 text-green-800';
-                                                            break;
-                                                        case 'In Maintenance':
-                                                            echo 'bg-yellow-100 text-yellow-800';
-                                                            break;
-                                                        case 'On Trip':
-                                                            echo 'bg-purple-100 text-purple-800';
-                                                            break;
-                                                        case 'Decommissioned':
-                                                            echo 'bg-red-100 text-red-800';
-                                                            break;
-                                                        default:
-                                                            echo 'bg-gray-100 text-gray-800';
-                                                    }
-                                                    ?>">
-                                                    <?php echo htmlspecialchars($vehicle['status']); ?>
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">
-                                                    <?php echo htmlspecialchars($vehicle['current_driver']); ?>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo date('M d, Y', strtotime($vehicle['next_service_due'])); ?>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo date('M d, Y', strtotime($vehicle['insurance_expiry'])); ?>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo htmlspecialchars($vehicle['funded_by']); ?>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div class="flex justify-end gap-2">
-                                                    <a href="vehicle-details.php?id=<?php echo $vehicle['id']; ?>" 
-                                                       class="text-primary hover:text-primary-dark"
-                                                       title="View Details">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="edit-vehicle.php?id=<?php echo $vehicle['id']; ?>" 
-                                                       class="text-primary hover:text-primary-dark"
-                                                       title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <button type="button"
-                                                            class="text-primary hover:text-primary-dark"
-                                                            title="Change Status"
-                                                            onclick="changeStatus(<?php echo $vehicle['id']; ?>)">
-                                                        <i class="bi bi-arrow-repeat"></i>
-                                                    </button>
-                                                    <button type="button"
-                                                            class="text-primary hover:text-primary-dark"
-                                                            title="Assign Driver"
-                                                            onclick="assignDriver(<?php echo $vehicle['id']; ?>)">
-                                                        <i class="bi bi-person-plus"></i>
-                                                    </button>
-                                                    <?php if ($vehicle['status'] !== 'Decommissioned'): ?>
-                                                        <form method="POST" class="inline" 
-                                                              onsubmit="return confirm('Are you sure you want to decommission this vehicle?');">
-                                                            <input type="hidden" name="vehicle_id" value="<?php echo $vehicle['id']; ?>">
-                                                            <button type="submit" name="decommission" 
-                                                                    class="text-red-600 hover:text-red-900"
-                                                                    title="Decommission">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                </template>
+                                <template x-for="vehicle in vehicles" :key="vehicle.id">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900" x-text="vehicle.registration_no"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900" x-text="vehicle.make + ' ' + vehicle.model"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900" x-text="vehicle.vehicle_type"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-badge"
+                                                  :class="getStatusClass(vehicle.status)"
+                                                  x-text="vehicle.status">
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900" x-text="vehicle.driver ? vehicle.driver.name : 'N/A'"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="formatDate(vehicle.next_service_due)"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="formatDate(vehicle.insurance_expiry)"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="vehicle.funded_by"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex justify-end gap-2">
+                                                <a :href="'vehicle-details.php?id=' + vehicle.id" class="text-primary hover:text-primary-dark" title="View Details"><i class="bi bi-eye"></i></a>
+                                                <a :href="'edit-vehicle.php?id=' + vehicle.id" class="text-primary hover:text-primary-dark" title="Edit"><i class="bi bi-pencil"></i></a>
+                                                <button @click="alert('Change status for ' + vehicle.registration_no)" type="button" class="text-primary hover:text-primary-dark" title="Change Status"><i class="bi bi-arrow-repeat"></i></button>
+                                                <button @click="alert('Assign driver for ' + vehicle.registration_no)" type="button" class="text-primary hover:text-primary-dark" title="Assign Driver"><i class="bi bi-person-plus"></i></button>
+                                                <template x-if="vehicle.status !== 'Decommissioned'">
+                                                    <button @click="decommissionVehicle(vehicle.id)" type="button" class="text-red-600 hover:text-red-900" title="Decommission"><i class="bi bi-trash"></i></button>
+                                                </template>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
                             </tbody>
                         </table>
+                    </div>
+                     <!-- Pagination -->
+                    <div x-show="pagination.total > pagination.per_page" class="px-6 py-3 bg-white border-t border-gray-200 flex items-center justify-between">
+                        <p class="text-sm text-gray-700">
+                            Showing <span x-text="pagination.from || 0"></span> to <span x-text="pagination.to || 0"></span> of <span x-text="pagination.total || 0"></span> results
+                        </p>
+                        <div class="flex space-x-1">
+                            <button @click="changePage(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="btn btn-secondary btn-sm">&laquo; Previous</button>
+                            <template x-for="pageLink in pagination.links">
+                                <template x-if="pageLink.url">
+                                    <button @click="changePage(pageLink.label)"
+                                            :class="{'btn-primary': pageLink.active, 'btn-secondary': !pageLink.active}"
+                                            class="btn btn-sm"
+                                            x-text="pageLink.label.replace('&laquo;', '').replace('&raquo;', '')"
+                                            :disabled="!isNumeric(pageLink.label) && !pageLink.url">
+                                    </button>
+                                </template>
+                            </template>
+                            <button @click="changePage(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="btn btn-secondary btn-sm">Next &raquo;</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-    function changeStatus(vehicleId) {
-        // Implement status change modal/form
-        alert('Status change functionality to be implemented');
-    }
+<script>
+document.addEventListener('alpine:initializing', () => {
+    Alpine.data('logisticsVehicles', () => ({
+        isLoading: true,
+        isSubmitting: false,
+        vehicles: [],
+        filters: {
+            search: '',
+            status: '',
+            type: '',
+            funded_by: '',
+            page: 1,
+            per_page: 15
+        },
+        pagination: {},
+        showFilters: false,
+        globalMessage: { text: '', type: '' }, // type can be 'success' or 'error'
+        apiBaseUrl: '/api/v1',
+        token: localStorage.getItem('admin_token') || localStorage.getItem('logistics_token'), // Assuming admin/logistics might share a token or have their own
 
-    function assignDriver(vehicleId) {
-        // Implement driver assignment modal/form
-        alert('Driver assignment functionality to be implemented');
-    }
-    </script>
+        init() {
+            if (!this.token) {
+                this.setGlobalMessage('Authentication token not found. Please login.', 'error');
+                this.isLoading = false;
+                return;
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            this.filters.search = urlParams.get('search') || '';
+            this.filters.status = urlParams.get('status') || '';
+            this.filters.type = urlParams.get('type') || '';
+            this.filters.funded_by = urlParams.get('funded_by') || '';
+            this.filters.page = parseInt(urlParams.get('page')) || 1;
+
+            this.fetchVehicles();
+        },
+
+        applyFiltersDebounced() {
+            clearTimeout(this._filterTimeout);
+            this._filterTimeout = setTimeout(() => {
+                this.filters.page = 1; // Reset to first page on new search/filter
+                this.applyFilters();
+            }, 500);
+        },
+
+        applyFilters() {
+            this.filters.page = 1; // Reset to first page on manual filter application
+            const newUrl = new URL(window.location.pathname, window.location.origin);
+            for (const key in this.filters) {
+                if (this.filters[key] && this.filters[key] !== '') {
+                    newUrl.searchParams.set(key, this.filters[key]);
+                }
+            }
+            history.pushState({}, '', newUrl);
+            this.fetchVehicles();
+        },
+
+        changePage(page) {
+            if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+            if (!this.isNumeric(page)) return; // Avoid issues with 'Previous', 'Next' labels if not handled by URL
+            this.filters.page = Number(page);
+            this.applyFilters();
+        },
+
+        async fetchVehicles() {
+            this.isLoading = true;
+            this.globalMessage.text = '';
+            try {
+                const params = new URLSearchParams();
+                for (const key in this.filters) {
+                    if (this.filters[key] !== '') {
+                        params.append(key, this.filters[key]);
+                    }
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/vehicles?${params.toString()}`, {
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) this.handleUnauthorized();
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error ${response.status}`);
+                }
+                const result = await response.json();
+                this.vehicles = result.data;
+                this.pagination = {
+                    current_page: result.meta.current_page,
+                    from: result.meta.from,
+                    last_page: result.meta.last_page,
+                    links: result.meta.links.filter(link => link.label !== '&laquo; Previous' && link.label !== 'Next &raquo;'), // simplified links for now
+                    path: result.meta.path,
+                    per_page: result.meta.per_page,
+                    to: result.meta.to,
+                    total: result.meta.total,
+                    prev_page_url: result.links.prev,
+                    next_page_url: result.links.next
+                };
+            } catch (error) {
+                this.setGlobalMessage(error.message || 'Failed to load vehicles.', 'error');
+                this.vehicles = [];
+                this.pagination = {};
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async decommissionVehicle(vehicleId) {
+            if (!confirm('Are you sure you want to decommission this vehicle? This action might be irreversible.')) return;
+
+            this.isSubmitting = true; // Consider adding specific loading state for this action
+            this.globalMessage.text = '';
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/vehicles/${vehicleId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' }
+                });
+                if (!response.ok) {
+                    if (response.status === 401) this.handleUnauthorized();
+                     const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to decommission vehicle.');
+                }
+                this.setGlobalMessage('Vehicle decommissioned successfully.', 'success');
+                this.fetchVehicles(); // Refresh the list
+            } catch (error) {
+                this.setGlobalMessage(error.message, 'error');
+            } finally {
+                this.isSubmitting = false;
+            }
+        },
+
+        exportCSV() {
+            const params = new URLSearchParams();
+            for (const key in this.filters) {
+                if (this.filters[key] !== '' && key !== 'page' && key !== 'per_page') { // Usually export all, not paginated
+                    params.append(key, this.filters[key]);
+                }
+            }
+            // Add token to query params if API requires it for direct link access, or use a server-side proxy.
+            // For simplicity, assuming public GET or server handles auth if needed for direct downloads.
+            // If token is strictly needed in header, CSV export must be handled by fetching data then generating CSV client-side or via blob.
+            // The current API /vehicles/export might be a GET that streams CSV.
+            window.location.href = `${this.apiBaseUrl}/vehicles/export?${params.toString()}&token=${this.token}`; // Token in query is not ideal but common for simple cases.
+            this.setGlobalMessage('CSV export initiated.', 'success');
+        },
+
+        getStatusClass(status) {
+            if (!status) return 'other';
+            const s = status.toLowerCase().replace(/ /g, '-');
+            if (['available', 'in-maintenance', 'on-trip', 'decommissioned'].includes(s)) {
+                return s;
+            }
+             if (s === 'maintenance') return 'maintenance'; // Alias
+            return 'other';
+        },
+
+        formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString + (dateString.includes('T') ? '' : 'T00:00:00'));
+                return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch (e) { return dateString; }
+        },
+
+        setGlobalMessage(text, type) {
+            this.globalMessage.text = text;
+            this.globalMessage.type = type;
+        },
+
+        handleUnauthorized() {
+            this.setGlobalMessage('Session expired or invalid. Please login again.', 'error');
+            localStorage.removeItem(this.token === localStorage.getItem('admin_token') ? 'admin_token' : 'logistics_token');
+            this.token = null;
+            // Optional: redirect to login page
+            // window.location.href = '/login.php';
+        },
+        alert(message) { window.alert(message); },
+        isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
+
+    }));
+});
+</script>
 </body>
-</html> 
+</html>

@@ -2,12 +2,15 @@
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-require_once 'mock_data.php';
+// require_once 'mock_data.php'; // Mock data system removed
 
 // Get mock data
-$trips = get_mock_data('trips');
-$vehicles = get_mock_data('vehicles');
-$drivers = get_mock_data('drivers');
+// $trips = get_mock_data('trips'); // Mock data system removed
+$trips = []; // Placeholder
+// $vehicles = get_mock_data('vehicles'); // Mock data system removed
+$vehicles = []; // Placeholder
+// $drivers = get_mock_data('drivers'); // Mock data system removed
+$drivers = []; // Placeholder
 
 // Handle trip creation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_trip') {

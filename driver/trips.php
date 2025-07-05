@@ -1,24 +1,5 @@
 <?php
-require_once '../components/layout/DashboardHeader.php';
-require_once '../components/layout/DashboardSidebar.php';
-require_once '../components/common/ReportHeader.php';
-require_once '../logistics/mock_data.php';
-
-// Get mock data
-$drivers = get_mock_data('drivers');
-$trips = get_mock_data('trips');
-$vehicles = get_mock_data('vehicles');
-
-// Mock current driver (in real app, this would come from session)
-$current_driver = $drivers[0];
-
-// Get trips for current driver
-$driver_trips = array_filter($trips, fn($t) => $t['driver_id'] === $current_driver['id']);
-
-// Sort trips by start time (most recent first)
-usort($driver_trips, function($a, $b) {
-    return strtotime($b['start_time']) - strtotime($a['start_time']);
-});
+// Remove mock data includes
 ?>
 
 <!DOCTYPE html>
@@ -142,17 +123,34 @@ usort($driver_trips, function($a, $b) {
             border-radius: 9999px;
         }
 
-        .status-badge.active {
-            background-color: #dcfce7;
-            color: #166534;
+        .status-badge.active { /* General active/valid status */
+            background-color: #dcfce7; /* green-100 */
+            color: #166534; /* green-800 */
+        }
+        .status-badge.completed { /* More specific for trips */
+             background-color: #dcfce7; /* green-100 */
+            color: #166534; /* green-800 */
+        }
+        .status-badge.in-progress {
+             background-color: #ccfbf1; /* teal-100 */
+            color: #0f766e; /* teal-700 */
+        }
+        .status-badge.pending {
+            background-color: #fef9c3; /* yellow-100 */
+            color: #713f12; /* yellow-800 */
+        }
+        .status-badge.cancelled {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
         }
 
-        .status-badge.warning {
+
+        .status-badge.warning { /* General warning */
             background-color: #fef3c7;
             color: #92400e;
         }
 
-        .status-badge.error {
+        .status-badge.error { /* General error/expired */
             background-color: #fee2e2;
             color: #991b1b;
         }
@@ -305,12 +303,21 @@ usort($driver_trips, function($a, $b) {
         .empty-state-text {
             color: var(--text-muted);
         }
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .alert-error {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+            border: 1px solid #fecaca; /* red-300 */
+        }
     </style>
 </head>
 <body class="pb-20">
-    <div class="app-container" x-data="{ 
-        isLoading: true
-    }" x-init="setTimeout(() => isLoading = false, 500)">
+    <div class="app-container" x-data="driverTrips()" x-init="init()">
         
         <!-- Main Content -->
         <div class="main-content">
@@ -322,9 +329,19 @@ usort($driver_trips, function($a, $b) {
                             <h1 class="text-xl font-semibold text-gray-900">My Trips</h1>
                             <p class="text-sm text-gray-500">View and manage your trips</p>
                         </div>
+                         <button @click="fetchTrips()" title="Refresh Data" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100">
+                            <i class="bi bi-arrow-clockwise text-lg"></i>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <!-- Global Error Message -->
+            <template x-if="globalError">
+                <div class="p-4">
+                    <div class="alert alert-error" x-text="globalError"></div>
+                </div>
+            </template>
 
             <!-- Loading State -->
             <div x-show="isLoading" class="flex justify-center items-center h-64">
@@ -332,96 +349,107 @@ usort($driver_trips, function($a, $b) {
             </div>
 
             <!-- Content -->
-            <div x-show="!isLoading" class="p-4 space-y-4">
-                <?php if (empty($driver_trips)): ?>
+            <div x-show="!isLoading && !globalError" class="p-4 space-y-4">
+                <template x-if="trips.length === 0">
                     <div class="empty-state">
                         <i class="bi bi-calendar-x empty-state-icon"></i>
                         <p class="empty-state-text">No trips found</p>
+                         <button class="btn btn-primary mt-4" @click="fetchTrips()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Retry
+                        </button>
                     </div>
-                <?php else: ?>
-                    <?php foreach ($driver_trips as $trip): ?>
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="space-y-4">
-                                    <!-- Trip Route -->
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1">
-                                            <p class="text-sm text-gray-500">From</p>
-                                            <p class="font-medium"><?php echo htmlspecialchars($trip['start_location']); ?></p>
-                                        </div>
-                                        <div class="text-gray-400">
-                                            <i class="bi bi-arrow-right"></i>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-sm text-gray-500">To</p>
-                                            <p class="font-medium"><?php echo htmlspecialchars($trip['end_location']); ?></p>
-                                        </div>
+                </template>
+                <template x-for="trip in trips" :key="trip.id">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="space-y-4">
+                                <!-- Trip Route -->
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-500">From</p>
+                                        <p class="font-medium" x-text="trip.start_location"></p>
                                     </div>
-
-                                    <!-- Trip Details -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <p class="text-sm text-gray-500">Purpose</p>
-                                            <p class="font-medium"><?php echo htmlspecialchars($trip['purpose']); ?></p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-500">Status</p>
-                                            <span class="status-badge <?php echo $trip['status'] === 'In Progress' ? 'warning' : 
-                                                ($trip['status'] === 'Completed' ? 'active' : ''); ?>">
-                                                <?php echo htmlspecialchars($trip['status']); ?>
-                                            </span>
-                                        </div>
+                                    <div class="text-gray-400">
+                                        <i class="bi bi-arrow-right"></i>
                                     </div>
-
-                                    <!-- Trip Timing -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <p class="text-sm text-gray-500">Start</p>
-                                            <p class="font-medium"><?php echo date('M d, H:i', strtotime($trip['start_time'])); ?></p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-500">End</p>
-                                            <p class="font-medium">
-                                                <?php echo $trip['end_time'] ? date('M d, H:i', strtotime($trip['end_time'])) : 'In Progress'; ?>
-                                            </p>
-                                        </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-500">To</p>
+                                        <p class="font-medium" x-text="trip.end_location"></p>
                                     </div>
+                                </div>
 
-                                    <!-- Vehicle Info -->
-                                    <?php 
-                                    $vehicle = array_filter($vehicles, fn($v) => $v['id'] === $trip['vehicle_id']);
-                                    $vehicle = reset($vehicle);
-                                    if ($vehicle): 
-                                    ?>
+                                <!-- Trip Details -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Purpose</p>
+                                        <p class="font-medium" x-text="trip.purpose"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Status</p>
+                                        <span class="status-badge" :class="{
+                                            'completed': trip.status === 'Completed',
+                                            'in-progress': trip.status === 'In Progress' || trip.status === 'Active',
+                                            'pending': trip.status === 'Pending' || trip.status === 'Scheduled',
+                                            'cancelled': trip.status === 'Cancelled'
+                                        }" x-text="trip.status">
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Trip Timing -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Start</p>
+                                        <p class="font-medium" x-text="formatDateTime(trip.start_time)"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">End</p>
+                                        <p class="font-medium" x-text="trip.end_time ? formatDateTime(trip.end_time) : (trip.status === 'In Progress' || trip.status === 'Active' ? 'Ongoing' : 'N/A')"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Vehicle Info -->
+                                <template x-if="trip.vehicle">
                                     <div class="list-item">
                                         <i class="bi bi-truck icon-blue"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-500">Vehicle</p>
-                                        <p class="font-medium">
-                                            <?php echo htmlspecialchars($vehicle['registration_number'] . ' - ' . $vehicle['make'] . ' ' . $vehicle['model']); ?>
-                                        </p>
+                                        <div>
+                                            <p class="text-sm text-gray-500">Vehicle</p>
+                                            <p class="font-medium" x-text="trip.vehicle.registration_no + ' - ' + trip.vehicle.make + ' ' + trip.vehicle.model"></p>
                                         </div>
                                     </div>
-                                    <?php endif; ?>
+                                </template>
 
-                                    <!-- Action Buttons -->
-                                    <?php if ($trip['status'] === 'In Progress'): ?>
-                                        <div class="flex flex-col sm:flex-row gap-2">
-                                            <button class="btn btn-primary flex-1">
-                                                <i class="bi bi-navigation me-2"></i>
-                                                Navigate
-                                            </button>
-                                            <button class="btn btn-success flex-1">
-                                                <i class="bi bi-check-circle me-2"></i>
-                                                Complete Trip
-                                            </button>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
+
+                                <!-- Action Buttons -->
+                                <template x-if="trip.status === 'In Progress' || trip.status === 'Active'">
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <button @click="alert('Navigation for trip ' + trip.id + ' coming soon!')" class="btn btn-primary flex-1">
+                                            <i class="bi bi-navigation me-2"></i>
+                                            Navigate
+                                        </button>
+                                        <button @click="completeTrip(trip.id)" class="btn btn-success flex-1" :disabled="isSubmitting === trip.id">
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            <span x-text="isSubmitting === trip.id ? 'Completing...' : 'Complete Trip'"></span>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="trip.status === 'Pending' || trip.status === 'Scheduled'">
+                                     <div class="flex flex-col sm:flex-row gap-2">
+                                        <button @click="startTrip(trip.id)" class="btn btn-primary flex-1" :disabled="isSubmitting === trip.id">
+                                            <i class="bi bi-play-circle me-2"></i>
+                                             <span x-text="isSubmitting === trip.id ? 'Starting...' : 'Start Trip'"></span>
+                                        </button>
+                                         <button @click="cancelTrip(trip.id)" class="btn btn-secondary flex-1 bg-red-100 text-red-700 hover:bg-red-200" :disabled="isSubmitting === trip.id">
+                                            <i class="bi bi-x-circle me-2"></i>
+                                            <span x-text="isSubmitting === trip.id ? 'Cancelling...' : 'Cancel Trip'"></span>
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                    </div>
+                </template>
             </div>
         </div>
 
@@ -447,5 +475,182 @@ usort($driver_trips, function($a, $b) {
             </div>
         </nav>
     </div>
+<script>
+document.addEventListener('alpine:initializing', () => {
+    Alpine.data('driverTrips', () => ({
+        isLoading: true,
+        isSubmitting: null, // Will store tripId when submitting for a specific trip
+        trips: [],
+        user: null,
+        driverId: null,
+        globalError: '',
+        apiBaseUrl: '/api/v1',
+        token: localStorage.getItem('driver_token'),
+
+        init() {
+            if (!this.token) {
+                this.globalError = 'Authentication token not found. Please login.';
+                this.isLoading = false;
+                // For testing, manually set localStorage.setItem('driver_token', 'YOUR_TOKEN');
+                return;
+            }
+            this.fetchUserProfileAndTrips();
+        },
+
+        async fetchUserProfileAndTrips() {
+            this.isLoading = true;
+            this.globalError = '';
+            try {
+                const profileResponse = await fetch(`${this.apiBaseUrl}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' }
+                });
+                if (!profileResponse.ok) {
+                     if (profileResponse.status === 401) this.handleUnauthorized();
+                    throw new Error('Failed to fetch user profile.');
+                }
+                const profileData = await profileResponse.json();
+                this.user = profileData.data;
+
+                // Attempt to get driver_id from the user's driver profile relation
+                if (this.user && this.user.driver && this.user.driver.id) {
+                    this.driverId = this.user.driver.id;
+                    await this.fetchTrips();
+                } else {
+                    // Fallback: if driver relation is not directly available, try to get driver_id from dashboard/driver endpoint
+                    // This is a less ideal way but can serve as a backup if /auth/profile is not comprehensive for drivers
+                    console.warn("Driver ID not directly in /auth/profile driver relation. Attempting fallback via /dashboard/driver.");
+                    const dashboardResponse = await fetch(`${this.apiBaseUrl}/dashboard/driver`, {
+                         headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json'}
+                    });
+                    if(!dashboardResponse.ok) {
+                        if (dashboardResponse.status === 401) this.handleUnauthorized();
+                        throw new Error('Failed to get driver details from dashboard for fetching trips.');
+                    }
+                    const dashboardData = await dashboardResponse.json();
+                    if(dashboardData.data && dashboardData.data.driver_details && dashboardData.data.driver_details.id){
+                        this.driverId = dashboardData.data.driver_details.id;
+                        await this.fetchTrips();
+                    } else {
+                         this.globalError = "Could not determine your Driver ID to fetch trips. Ensure your profile is correctly set up as a driver.";
+                         this.isLoading = false;
+                         return;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                this.globalError = error.message || 'Failed to load page data.';
+                 this.isLoading = false; // Ensure loading is false on error
+            }
+            // isLoading is set to false within fetchTrips or if an error occurs before it.
+        },
+
+        async fetchTrips() {
+            if (!this.driverId) {
+                this.globalError = 'Driver ID not available to fetch trips.';
+                this.isLoading = false;
+                return;
+            }
+            this.isLoading = true; // Ensure loading is true before this specific fetch
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/drivers/${this.driverId}/trips`, {
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' }
+                });
+                if (!response.ok) {
+                    if (response.status === 401) this.handleUnauthorized();
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error ${response.status}`);
+                }
+                const data = await response.json();
+                this.trips = data.data.sort((a, b) => new Date(b.start_time) - new Date(a.start_time)); // Sort by date
+            } catch (error) {
+                console.error('Error fetching trips:', error);
+                this.globalError = error.message || 'Failed to load trips.';
+                this.trips = [];
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async completeTrip(tripId) {
+            if (!tripId || !confirm('Are you sure you want to complete this trip?')) return;
+            this.isSubmitting = tripId;
+            this.globalError = ''; // Clear previous global errors
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/trips/${tripId}/complete`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' },
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to complete trip.');
+                }
+                await this.fetchTrips(); // Refresh list
+            } catch (error) {
+                this.globalError = error.message;
+            } finally {
+                this.isSubmitting = null;
+            }
+        },
+
+        async startTrip(tripId) {
+            if (!tripId || !confirm('Are you sure you want to start this trip?')) return;
+            this.isSubmitting = tripId;
+            this.globalError = '';
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/trips/${tripId}/start`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' },
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to start trip.');
+                }
+                await this.fetchTrips(); // Refresh list
+            } catch (error) {
+                this.globalError = error.message;
+            } finally {
+                this.isSubmitting = null;
+            }
+        },
+        async cancelTrip(tripId) {
+            if (!tripId || !confirm('Are you sure you want to cancel this trip? This action cannot be undone.')) return;
+            this.isSubmitting = tripId;
+            this.globalError = '';
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/trips/${tripId}/cancel`, {
+                    method: 'POST', // Laravel typically uses POST for state changes even if destructive like cancel
+                    headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' },
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to cancel trip.');
+                }
+                await this.fetchTrips(); // Refresh list
+            } catch (error) {
+                this.globalError = error.message;
+            } finally {
+                this.isSubmitting = null;
+            }
+        },
+
+
+        handleUnauthorized() {
+            this.globalError = 'Session expired or invalid. Please login again.';
+            localStorage.removeItem('driver_token');
+            // Consider redirect: window.location.href = '/login.php';
+        },
+
+        formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            try {
+                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                return new Date(dateTimeString).toLocaleString(undefined, options);
+            } catch (e) { return dateTimeString; }
+        },
+        alert(message) { window.alert(message); }
+    }));
+});
+</script>
 </body>
-</html> 
+</html>

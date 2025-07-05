@@ -2,12 +2,15 @@
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-require_once 'mock_data.php';
+// require_once 'mock_data.php'; // Mock data system removed
 
 // Get mock data
-$vehicles = get_mock_data('vehicles');
-$trips = get_mock_data('trips');
-$fuel_cards = get_mock_data('fuel_cards');
+// $vehicles = get_mock_data('vehicles'); // Mock data system removed
+$vehicles = []; // Placeholder
+// $trips = get_mock_data('trips'); // Mock data system removed
+$trips = []; // Placeholder
+// $fuel_cards = get_mock_data('fuel_cards'); // Mock data system removed
+$fuel_cards = []; // Placeholder
 
 // Calculate total fuel cost
 $total_fuel_cost = array_sum(array_column($fuel_cards, 'last_transaction_amount'));

@@ -2,11 +2,13 @@
 require_once '../components/layout/DashboardHeader.php';
 require_once '../components/layout/DashboardSidebar.php';
 require_once '../components/common/ReportHeader.php';
-require_once 'mock_data.php';
+// require_once 'mock_data.php'; // Mock data system removed
 
 // Get mock data
-$maintenance = get_mock_data('maintenance');
-$vehicles = get_mock_data('vehicles');
+// $maintenance = get_mock_data('maintenance'); // Mock data system removed
+$maintenance = []; // Placeholder
+// $vehicles = get_mock_data('vehicles'); // Mock data system removed
+$vehicles = []; // Placeholder
 
 // Calculate statistics
 $total_maintenance = count($maintenance);
